@@ -64,10 +64,10 @@ double sampvar[100], sampsd[100], sampskw[100], sampk3[100];
 
 /* Open the output and input files. */
 
-fopen_s(&outstream,"dataout.txt", "w");
-fopen_s(&instream, "datain.txt", "r");
-
-
+outstream=fopen("dataout", "w");
+            // fopen_s(&outstream,"dataout.txt", "w");
+instream=fopen("datain.txt", "r");
+           //fopen_s(&instream, "datain.txt", "r");
 
 /* Set the initial conditions and counters. */
 
