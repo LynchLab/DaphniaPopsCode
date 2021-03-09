@@ -1,5 +1,7 @@
 setwd("/scratch/rraborn/")
-#load("/data/LynchLabCME/Daphnia/DaphPopsTSRs/binaries/PdSTRIPE_complete.rdata")
+load("/data/LynchLabCME/Daphnia/DaphPopsTSRs/binaries/PdSTRIPE_complete.rdata")
+library(TSRchitect)
+library(TSRexploreR)
 library(dplyr)
 library(stringr)
 library(reshape2)
@@ -140,10 +142,30 @@ tss.TEX36.gr <- makeGRangesFromDataFrame(tss.df.TEX36.se.sorted,
                          strand.field="strand",
                          starts.in.df.are.0based=FALSE)
 
+#tsr.index <- which(PdSTRIPE@replicateIDs=="9") #grabbing the TEX36 TSR indices
+#tsrs.TEX36 <- PdSTRIPE@tsrData[[tsr.index]] 
 
-tsr.TEX36 <- PdSTRIPE@tsrData[[9]] #in progress 
+tsr.combined <- makeGRangesFromTSR(PdSTRIPE, "merged", 1)
+
+TEX36_tss_tsr_ol <- findOverlaps(tss.TEX36.gr, tsr.combined)
+TEX36_tss_tsr.ind <- as.data.frame(TEX36_tss_tsr_ol)
+head(TEX36_tss_tsr.ind)
+
+TEX36.OL.tss <- tss.df.TEX36.se.sorted[TEX36_tss_tsr.ind$queryHits,]
+TEX36.OL.tsr <- as.data.frame(tsr.combined)
+TEX36.OL.tsr <- TEX36.OL.tsr[TEX36_tss_tsr.ind$subjectHits,]
+rownames(TEX36.OL.tss) <- rownames(TEX36.OL.tsr) #adding tsr names to TSRs
+TEX36.OL.tss <- TEX36.OL.tss[,-3:-4]
+TEX36.OL.tss <- TEX36.OL.tss[,-1]
+
+### TODO 
+#### fix the rownames to have tsr numbers
+### need to use split to remove the trailing .# as in scaffold_98.237031.237053.+.10
+
+#writing the TSSs to a file
+write.table(TEX36.OL.tss, file="TEX36sampleTSSs.txt", sep="\t", row.names=TRUE, col.names=FALSE, quote=FALSE)
 
 #writing the data to a text file
-write.table(tss.df.W17.new2, file="W17_all_reps_TSS_counts.txt", sep="\t")
-write.table(tss.df.TEX36.new2, file="TEX36_all_reps_TSS_counts.txt", sep = "\t")
+write.table(tss.df.W17.new2, file="W17_all_reps_TSS_counts.txt", sep="\t", row.names=TRUE, col.names=TRUE, quote=FALSE)
+write.table(tss.df.TEX36.new2, file="TEX36_all_reps_TSS_counts.txt", sep = "\t", row.names=TRUE, col.names=TRUE, quote=FALSE)
 
