@@ -154,16 +154,16 @@ head(TEX36_tss_tsr.ind)
 TEX36.OL.tss <- tss.df.TEX36.se.sorted[TEX36_tss_tsr.ind$queryHits,]
 TEX36.OL.tsr <- as.data.frame(tsr.combined)
 TEX36.OL.tsr <- TEX36.OL.tsr[TEX36_tss_tsr.ind$subjectHits,]
-rownames(TEX36.OL.tss) <- rownames(TEX36.OL.tsr) #adding tsr names to TSRs
+#rownames(TEX36.OL.tss) <- rownames(TEX36.OL.tsr) #adding tsr names to TSRs
+#tex36_tsr_names <- paste("tsr",TEX36_tss_tsr.ind$subjectHits, sep="_") #adding new tsr names to TSRs
+tex36_tsr_names <- as.numeric(TEX36_tss_tsr.ind$subjectHits)
 TEX36.OL.tss <- TEX36.OL.tss[,-3:-4]
 TEX36.OL.tss <- TEX36.OL.tss[,-1]
-
-### TODO 
-#### fix the rownames to have tsr numbers
-### need to use split to remove the trailing .# as in scaffold_98.237031.237053.+.10
+TEX36.tss.df <- cbind(tex36_tsr_names, TEX36.OL.tss)
+colnames(TEX36.tss.df) <- c("ID", "start", "TEX36_r1", "TEX36_r2", "TEX36_r3")
 
 #writing the TSSs to a file
-write.table(TEX36.OL.tss, file="TEX36sampleTSSs.txt", sep="\t", row.names=TRUE, col.names=FALSE, quote=FALSE)
+write.table(TEX36.tss.df, file="TEX36sampleTSSs.txt", sep="\t", row.names=FALSE, col.names=FALSE, quote=FALSE)
 
 #writing the data to a text file
 write.table(tss.df.W17.new2, file="W17_all_reps_TSS_counts.txt", sep="\t", row.names=TRUE, col.names=TRUE, quote=FALSE)
