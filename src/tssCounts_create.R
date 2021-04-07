@@ -107,15 +107,117 @@ colnames(tss.df.TEX36) <- c("seq","TSS","strand", "TEX36_r1", "TEX36_r2", "TEX36
 tss.df.TEX36.new <- tss.df.TEX36 %>% 
   arrange(seq,TSS, strand)
 
+###### doing the same for OA85
+
+tssRepsCounts <- NULL
+tss.start <- PdSTRIPE@tssCountData[[10]]
+tssRepsCounts$test1 <- PdSTRIPE@tssCountData[[10]]
+tssRepsCounts$test2 <- PdSTRIPE@tssCountData[[11]]
+
+tss.df <- tss.start
+
+tss.df <-
+  tss.df[tss.df$nTAGs >= tagCountThreshold, ] #filtering the tss.start dataset
+
+this.tssSet <- tssRepsCounts[[1]] #priming the loop to come
+this.vec <- paste(this.tssSet$seq, this.tssSet$TSS, this.tssSet$strand, sep="_")
+
+for (j in 2:length(tssRepsCounts)) {
+  #need to add iterative merging
+  this.tssSet <- tssRepsCounts[[j]]
+  this.vec2 <- paste(this.tssSet$seq, this.tssSet$TSS, this.tssSet$strand, sep=" ")
+  this.vec <- c(this.vec, this.vec2)
+}
+
+length(this.vec)
+this.vec.new <- unique(this.vec)
+length(this.vec.new)
+
+tss.df <- colsplit(this.vec.new, " ", c("seq", "TSS", "strand"))
+
+mergeCols <- c("seq", "TSS", "strand")
+
+for (j in 1:length(tssRepsCounts)) { 
+  print(j)
+  this.tssSet <- tssRepsCounts[[j]]
+  #...  we are discarding counts below the tag count threshold tagCountThreshold:
+  #  this.tssSet <-
+  #    this.tssSet[this.tssSet$nTAGs >= tagCountThreshold, ]
+  
+  tss.df <-  right_join(tss.df, this.tssSet, by=mergeCols)
+}
+
+colnames(tss.df) <- c("seq", "TSS", "strand", "nTAGs_1", "isTRUE_1", "nTAGs_2", "isTRUE_2")
+tss.df.OA85 <- cbind(tss.df[,1:3], tss.df$nTAGs_1, tss.df$nTAGs_2) 
+colnames(tss.df.OA85) <- c("seq","TSS","strand", "OA85_r1", "OA85_r2")
+tss.df.OA85.new <- tss.df.OA85 %>% 
+  arrange(seq,TSS, strand)
+
+
+
+#### Now with LPB
+
+tssRepsCounts <- NULL
+tss.start <- PdSTRIPE@tssCountData[[4]]
+tssRepsCounts$test1 <- PdSTRIPE@tssCountData[[4]]
+tssRepsCounts$test2 <- PdSTRIPE@tssCountData[[4]]
+
+tss.df <- tss.start
+
+tss.df <-
+  tss.df[tss.df$nTAGs >= tagCountThreshold, ] #filtering the tss.start dataset
+
+this.tssSet <- tssRepsCounts[[1]] #priming the loop to come
+this.vec <- paste(this.tssSet$seq, this.tssSet$TSS, this.tssSet$strand, sep="_")
+
+for (j in 2:length(tssRepsCounts)) {
+  #need to add iterative merging
+  this.tssSet <- tssRepsCounts[[j]]
+  this.vec2 <- paste(this.tssSet$seq, this.tssSet$TSS, this.tssSet$strand, sep=" ")
+  this.vec <- c(this.vec, this.vec2)
+}
+
+length(this.vec)
+this.vec.new <- unique(this.vec)
+length(this.vec.new)
+
+tss.df <- colsplit(this.vec.new, " ", c("seq", "TSS", "strand"))
+
+mergeCols <- c("seq", "TSS", "strand")
+
+for (j in 1:length(tssRepsCounts)) { 
+  print(j)
+  this.tssSet <- tssRepsCounts[[j]]
+  #...  we are discarding counts below the tag count threshold tagCountThreshold:
+  #  this.tssSet <-
+  #    this.tssSet[this.tssSet$nTAGs >= tagCountThreshold, ]
+  
+  tss.df <-  right_join(tss.df, this.tssSet, by=mergeCols)
+}
+
+colnames(tss.df) <- c("seq", "TSS", "strand", "nTAGs_1", "isTRUE_1", "nTAGs_2", "isTRUE_2")
+tss.df.LPB <- cbind(tss.df[,1:3], tss.df$nTAGs_1, tss.df$nTAGs_2) 
+colnames(tss.df.LPB) <- c("seq","TSS","strand", "LPB_r1", "LPB_r2")
+tss.df.LPB.new <- tss.df.LPB %>% 
+  arrange(seq,TSS, strand)
+
+######
+
 #replacing NAs with 0 for the counts file
 tss.df.W17.new2 <- tss.df.W17.new %>% replace(is.na(.), 0) 
 tss.df.TEX36.new2 <- tss.df.TEX36.new %>% replace(is.na(.), 0)
+tss.df.OA85.new2 <- tss.df.OA85.new %>% replace(is.na(.), 0) 
+tss.df.LPB.new2 <- tss.df.LPB.new %>% replace(is.na(.), 0) 
 
 #####
 tss.df.W17.new2.p <- tss.df.W17.new2[tss.df.W17.new2$strand=="+",]
 tss.df.W17.new2.m <- tss.df.W17.new2[tss.df.W17.new2$strand=="-",]
 tss.df.TEX36.new2.p <- tss.df.TEX36.new2[tss.df.TEX36.new2$strand=="+",]
 tss.df.TEX36.new2.m <- tss.df.TEX36.new2[tss.df.TEX36.new2$strand=="-",]
+tss.df.OA85.new2.p <- tss.df.OA85.new2[tss.df.TEX36.new2$strand=="+",]
+tss.df.OA85.new2.m <- tss.df.OA85.new2[tss.df.TEX36.new2$strand=="-",]
+tss.df.LPB.new2.p <- tss.df.LPB.new2[tss.df.TEX36.new2$strand=="+",]
+tss.df.LPB.new2.m <- tss.df.LPB.new2[tss.df.TEX36.new2$strand=="-",]
 
 tss.df.TEX36.new2.p.start <- tss.df.TEX36.new2.p$TSS -1
 tss.df.TEX36.new2.p.end <- tss.df.TEX36.new2.p$TSS
@@ -169,3 +271,18 @@ write.table(TEX36.tss.df, file="TEX36sampleTSSs.txt", sep="\t", row.names=FALSE,
 write.table(tss.df.W17.new2, file="W17_all_reps_TSS_counts.txt", sep="\t", row.names=TRUE, col.names=TRUE, quote=FALSE)
 write.table(tss.df.TEX36.new2, file="TEX36_all_reps_TSS_counts.txt", sep = "\t", row.names=TRUE, col.names=TRUE, quote=FALSE)
 
+W17.sum.vec <- rowSums(tss.df.W17.new2[, c(4:10)])
+TEX36.sum.vec <- rowSums(tss.df.TEX36.new2[,c(4:6)])
+OA85.sum.vec <- rowSums(tss.df.OA85.new2[, c(4:5)])
+LPB.sum.vec <- rowSums(tss.df.LPB.new2[, c(4:5)])
+W17.tss.combined <- cbind(tss.df.W17.new2[,1:3], W17.sum.vec)
+TEX36.tss.combined <- cbind(tss.df.TEX36.new2[,1:3], TEX36.sum.vec)
+OA85.tss.combined <- cbind(tss.df.OA85.new2[,1:3], OA85.sum.vec)
+LPB.tss.combined <- cbind(tss.df.LPB.new2[,1:3], LPB.sum.vec)
+
+
+tss.out <-  inner_join(W17.tss.combined, TEX36.tss.combined, by=mergeCols)
+tss.out2 <- inner_join(tss.out, OA85.tss.combined, by=mergeCols)
+tss.out3 <- inner_join(tss.out2, LPB.tss.combined, by=mergeCols)
+colnames(tss.out3) <- c("seq", "TSS", "strand", "W17_counts", "TEX36_counts", "OA85_counts", "LPB_counts")
+write.table(tss.out3, file="DaphPopstssOutFile.csv", row.names=TRUE, col.names=TRUE, quote=FALSE)
